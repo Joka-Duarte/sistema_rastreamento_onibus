@@ -30,6 +30,7 @@ O repositório está organizado nas seguintes pastas:
 * **Interface**: XML Layouts.
 * **Gerenciador de Dependências**: Gradle.
 * **Compatibilidade**: Android 8.0 ou superior.
+* **Servidor**: Flask (Python) para processamento de dados e gerenciamento de avisos.
 
 ## 👥 Equipe
 
