@@ -124,4 +124,3 @@ Retornado somente quando o `idLinha` não existe no sistema.
   "mensagem": "Erro interno no servidor. Tente novamente mais tarde."
 }
 ```
-````
