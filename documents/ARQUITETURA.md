@@ -1,4 +1,4 @@
-# Documento de Arquitetura - Sistema de Rastreamento de Ônibus
+# Descrição da Arquitetura do Sistema de Rastreamento de Ônibus
 
 Este documento descreve as decisões arquiteturais, estruturais e tecnológicas do Sistema de Rastreamento de Ônibus de Bagé/RS. O objetivo é garantir um sistema resiliente, escalável e de fácil manutenção pela equipe.
 

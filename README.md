@@ -14,13 +14,13 @@ O repositório está organizado para separar claramente o código-fonte da docum
 * **`/backend`**: Código-fonte do servidor central responsável pelo processamento das coordenadas e gerenciamento dos avisos.
 * **`/diagrams`**: Documentação visual em UML (Casos de Uso, Classes, Sequência) e representações da Macro e Microarquitetura do sistema.
 * **`/documents`**: Documentação técnica e contratual do projeto:
-  * 📄 [Documento de Especificação de Requisitos](./documents/Documento_de_Especificação_de_Requisitos.pdf)
-  * 📄 [Documento de Arquitetura de Software (DAS)](./documents/Documento_de_Arquitetura.pdf)
-  * 📄 [Contrato de API REST](./documents/CONTRATO_API.md)
   * 📄 [Proposta Original do Trabalho Prático](./documents/Trabalho_Prático_ES_2026-1.pdf)
-* **`/software`**:
-    * `android-passenger/`: Aplicativo Android para consulta de localização e avisos (Consumidor).
-    * `android-driver/`: Aplicativo Android para transmissão de GPS e sincronização offline (Produtor).
+  * 📄 [Documento de Especificação de Requisitos](./documents/Documento_de_Especificação_de_Requisitos.pdf)
+  * 📄 [Diagramas do Sistema](./documents/DIAGRAMAS.md)
+  * 📄 [Especificação da Arquitetura](./documents/ARQUITETURA.md)
+  * 📄 [Documento de Arquitetura de Software (DAS)](./documents/Documento_de_Arquiteturas.pdf)
+  * 📄 [Contrato de API REST](./documents/CONTRATO_API.md)
+* **`/frontend`**: Código-fonte do aplicativo Android nativo, incluindo a lógica de renderização do mapa, cálculo de defasagem temporal e moderação de avisos da comunidade.
 
 ## 🚀 Funcionalidades Principais
 
