@@ -9,7 +9,6 @@ Este documento apresenta a modelagem visual do **Sistema de Rastreamento de Ôni
 ## 1. Diagrama de Casos de Uso
 
 ![Diagrama de Casos de Uso](./UML/1.%20Diagrama%20de%20Casos%20de%20Uso.png)
-*(Se o nome do seu arquivo de imagem for diferente, ajuste o link acima)*
 
 **O que este diagrama significa:**
 Ele ilustra a visão macro das interações entre os atores (usuários) e o sistema, mapeando diretamente os Requisitos de Usuário (RU):
@@ -22,7 +21,6 @@ Ele ilustra a visão macro das interações entre os atores (usuários) e o sist
 ## 2. Diagrama de Classes (Domínio)
 
 ![Diagrama de Classes](./UML/2.%20Diagrama%20de%20Classes.png)
-*(Se o nome do seu arquivo de imagem for diferente, ajuste o link acima)*
 
 **O que este diagrama significa:**
 Ele representa o "esqueleto" do banco de dados e as entidades principais que transitam no código (Requisitos Funcionais):
@@ -35,7 +33,6 @@ Ele representa o "esqueleto" do banco de dados e as entidades principais que tra
 ## 3. Diagrama de Sequência
 
 ![Diagrama de Sequência](./UML/3.%20Diagrama%20de%20Sequência.png)
-*(Se o nome do seu arquivo de imagem for diferente, ajuste o link acima)*
 
 **O que este diagrama significa:**
 Mostra a linha do tempo e a comunicação entre os aplicativos e o servidor. Fica evidente a separação de responsabilidades (Macroarquitetura):
