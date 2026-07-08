@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Passageiro - PoC Visual</title>
+    <style>
+        body { background: #2c3e50; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        .smartphone { width: 360px; height: 700px; background: #f8f9fa; border: 14px solid #111; border-radius: 35px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
+        
+        .app-bar { background: #f39c12; color: white; padding: 20px 15px 0 15px; text-align: center; }
+        .app-bar h3 { margin: 0 0 15px 0; font-size: 18px; }
+        select.linha-select { width: 100%; padding: 10px; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; margin-bottom: 15px; }
+        
+        /* Abas */
+        .tabs { display: flex; background: rgba(0,0,0,0.1); border-radius: 8px 8px 0 0; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: transparent; color: white; font-weight: bold; cursor: pointer; opacity: 0.6; }
+        .tab-btn.active { opacity: 1; border-bottom: 3px solid white; background: rgba(0,0,0,0.2); }
+        
+        .content { padding: 20px; flex: 1; display: flex; flex-direction: column; background: #e9ecef; overflow-y: auto; }
+        .tab-content { display: none; }
+        .tab-content.active { display: flex; flex-direction: column; flex: 1; }
+        
+        button.btn-acao { padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; background: #2980b9; margin-bottom: 15px; }
+        
+        /* Cards de Informação */
+        .card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 3px 6px rgba(0,0,0,0.05); }
+        .card-onibus { border-left: 6px solid #2ecc71; }
+        .card-aviso { border-left: 6px solid #e74c3c; }
+        
+        /* ========================================= */
+        /* MAPA FALSO (MOCKUP VISUAL)                */
+        /* ========================================= */
+        .mapa-visual {
+            width: 100%;
+            height: 180px;
+            background-color: #e5e3df; /* Cor base de mapa */
+            /* Malha de ruas falsa feita com CSS */
+            background-image: 
+                linear-gradient(#fff 2px, transparent 2px),
+                linear-gradient(90deg, #fff 2px, transparent 2px);
+            background-size: 30px 30px;
+            border-radius: 12px;
+            border: 3px solid #fff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+            margin-bottom: 15px;
+            overflow: hidden;
+            display: none; /* Só aparece quando tem ônibus ativo */
+        }
+        
+        .onibus-marcador {
+            position: absolute;
+            font-size: 24px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+            /* Animação que faz o ônibus percorrer o mapa */
+            animation: trajetoFalso 8s infinite alternate ease-in-out;
+        }
+
+        /* Os "pontos" da rota no mapa falso */
+        @keyframes trajetoFalso {
+            0%   { top: 80%; left: 5%;  }
+            30%  { top: 50%; left: 30%; }
+            50%  { top: 50%; left: 60%; }
+            80%  { top: 20%; left: 70%; }
+            100% { top: 15%; left: 85%; }
+        }
+        /* ========================================= */
+
+        /* Votação */
+        .botoes-voto { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-voto { flex: 1; padding: 6px; border: 1px solid #ddd; background: #f8f9fa; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        select.aviso-select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="smartphone">
+        <div class="app-bar">
+            <h3>📍 Meu Ônibus</h3>
+            <select id="selectLinha" class="linha-select" onchange="atualizarTudo()">
+                <option value="RU01">Rota Atual: RU01 - Unipampa</option>
+                <option value="C01">Rota Atual: C01 - Circular Centro</option>
+            </select>
+            
+            <div class="tabs">
+                <button class="tab-btn active" onclick="mudarAba('mapa')">Radar GPS</button>
+                <button class="tab-btn" onclick="mudarAba('comunidade')">Comunidade</button>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div id="aba-mapa" class="tab-content active">
+                <button class="btn-acao" onclick="buscarOnibus()">🔄 Atualizar Radar</button>
+                
+                <div id="mapaMockup" class="mapa-visual">
+                    <svg width="100%" height="100%" style="position: absolute; top:0; left:0;">
+                        <path d="M 15 160 Q 100 80 180 90 T 300 30" fill="transparent" stroke="#3498db" stroke-width="6" stroke-dasharray="8,4"/>
+                    </svg>
+                    <div class="onibus-marcador">🚌</div>
+                </div>
+
+                <div id="listaOnibus">
+                    <p style="text-align:center; color: #7f8c8d; margin-top: 40px;">Clique em atualizar.</p>
+                </div>
+            </div>
+
+            <div id="aba-comunidade" class="tab-content">
+                <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                    <div style="font-weight: bold; margin-bottom: 10px; color: #2c3e50;">Reportar Problema na Linha</div>
+                    <select id="tipoProblema" class="aviso-select">
+                        <option value="Ônibus Quebrado">⚠️ Ônibus Quebrado</option>
+                        <option value="Trânsito Pesado/Atraso">🚗 Trânsito Pesado / Atraso</option>
+                        <option value="Acidente no Trajeto">💥 Acidente no Trajeto</option>
+                        <option value="Ponto de Ônibus Lotado">👥 Ponto Lotado</option>
+                    </select>
+                    <button class="btn-acao" style="background: #e74c3c; width: 100%; margin-bottom: 0;" onclick="criarAviso()">Reportar</button>
+                </div>
+                
+                <div style="font-weight: bold; color: #7f8c8d; margin-bottom: 10px;">Alertas Ativos:</div>
+                <div id="listaAvisos"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function mudarAba(aba) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`aba-${aba}`).classList.add('active');
+            if(aba === 'comunidade') carregarAvisos();
+        }
+
+        function atualizarTudo() {
+            buscarOnibus();
+            carregarAvisos();
+        }
+
+        // ================= LÓGICA DO MAPA =================
+        function buscarOnibus() {
+            const linha = document.getElementById('selectLinha').value;
+            const divMapa = document.getElementById('listaOnibus');
+            const mapaVisual = document.getElementById('mapaMockup');
+            
+            divMapa.innerHTML = '<p style="text-align:center;">Buscando dados reais da API...</p>';
+            mapaVisual.style.display = 'none'; // Esconde o mapa falso durante a busca
+            
+            fetch(`/api/v1/linhas/${linha}/veiculos`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "aviso" || data.status === 404) {
+                    divMapa.innerHTML = `<div class="card" style="text-align:center; color:#e74c3c;">Nenhum veículo transmitindo na linha.</div>`;
+                    return;
+                }
+                
+                divMapa.innerHTML = '';
+                let algumEmTempoReal = false;
+
+                data.veiculos.forEach(v => {
+                    const diffSeg = (new Date().getTime() - new Date(v.timestampCaptura).getTime()) / 1000;
+                    const atrasado = diffSeg > 10; 
+                    
+                    if (!atrasado) algumEmTempoReal = true;
+                    
+                    divMapa.innerHTML += `
+                        <div class="card card-onibus" style="${atrasado ? 'border-color: #95a5a6; opacity: 0.7;' : ''}">
+                            <strong>🚍 Veículo: ${v.idVeiculo}</strong><br>
+                            <small>Dados da API: Lat ${v.ultimaLatitude.toFixed(5)} | Lon ${v.ultimaLongitude.toFixed(5)}</small><br>
+                            <small style="color: ${atrasado ? '#7f8c8d' : '#27ae60'}; font-weight: bold;">
+                                ${atrasado ? `Sem sinal há ${Math.floor(diffSeg)}s` : '🟢 Sinal Estável (Visualização Ativa)'}
+                            </small>
+                        </div>
+                    `;
+                });
+
+                // Se houver pelo menos um ônibus transmitindo em tempo real, mostra o Mapa Falso!
+                if (algumEmTempoReal) {
+                    mapaVisual.style.display = 'block';
+                }
+            });
+        }
+
+        // ================= LÓGICA DA COMUNIDADE =================
+        function criarAviso() {
+            const linha = document.getElementById('selectLinha').value;
+            const problema = document.getElementById('tipoProblema').value;
+            
+            fetch(`/api/v1/linhas/${linha}/avisos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tipoProblema: problema })
+            }).then(() => {
+                carregarAvisos();
+                alert('Aviso publicado com sucesso!');
+            });
+        }
+
+        function carregarAvisos() {
+            const linha = document.getElementById('selectLinha').value;
+            const divAvisos = document.getElementById('listaAvisos');
+            divAvisos.innerHTML = '<p style="text-align:center; font-size:12px;">Carregando API...</p>';
+            
+            fetch(`/api/v1/linhas/${linha}/avisos`)
+            .then(res => res.json())
+            .then(data => {
+                if(!data.avisos || data.avisos.length === 0) {
+                    divAvisos.innerHTML = '<div class="card" style="text-align:center; color:#7f8c8d;">Nenhum alerta para esta rota.</div>';
+                    return;
+                }
+                
+                divAvisos.innerHTML = '';
+                data.avisos.forEach(a => {
+                    const ehOficial = a.origem === "motorista";
+                    const corBorda = ehOficial ? "#f1c40f" : "#e74c3c";
+                    const corTexto = ehOficial ? "#d35400" : "#c0392b";
+
+                    divAvisos.innerHTML += `
+                        <div class="card" style="border-left: 6px solid ${corBorda}; ${ehOficial ? 'background: #fff9e6;' : ''}">
+                            <strong style="color: ${corTexto};">${a.tipoProblema}</strong>
+                            ${ehOficial ? '<div style="font-size: 11px; font-weight: bold; color: #f39c12; margin-top: 5px;">Aviso Oficial da Operação</div>' : ''}
+                            
+                            <div class="botoes-voto" style="${ehOficial ? 'display: none;' : ''}">
+                                <button class="btn-voto" style="color: #27ae60;" onclick="votar('${a.idAviso}', 'util')">
+                                    👍 Útil (${a.votosUteis})
+                                </button>
+                                <button class="btn-voto" style="color: #e74c3c;" onclick="votar('${a.idAviso}', 'desatualizado')">
+                                    👎 Já Passou (${a.votosDesatualizados})
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        function votar(idAviso, tipo) {
+            fetch(`/api/v1/avisos/${idAviso}/votar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ voto: tipo })
+            }).then(() => carregarAvisos());
+        }
+    </script>
+</body>
+</html>
