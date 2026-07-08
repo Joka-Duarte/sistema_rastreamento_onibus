@@ -3,30 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Motorista - Transmissão</title>
+    <title>App Motorista - RF02 Fiel</title>
     <style>
         body { background: #2c3e50; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; }
         .smartphone { width: 360px; height: 700px; background: #ecf0f1; border: 14px solid #111; border-radius: 35px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 15px 35px rgba(0,0,0,0.6); position: relative; }
         .app-bar { background: #34495e; color: white; padding: 20px 15px; text-align: center; font-size: 18px; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .content { padding: 25px; flex: 1; display: flex; flex-direction: column; }
         
-        /* Formulários e Inputs */
         label { font-size: 13px; font-weight: bold; color: #7f8c8d; margin-bottom: 5px; display: block; }
         select, input { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #bdc3c7; border-radius: 8px; font-size: 15px; background: white; box-sizing: border-box; }
-        select:focus, input:focus { outline: none; border-color: #3498db; }
         
-        /* Botões */
-        button { padding: 16px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; width: 100%; transition: 0.2s; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        button { padding: 16px; border: none; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; color: white; width: 100%; transition: 0.2s; margin-bottom: 12px; }
         .btn-primary { background: #3498db; }
-        .btn-primary:active { background: #2980b9; transform: translateY(2px); }
         .btn-start { background: #27ae60; }
-        .btn-start:active { background: #219150; transform: translateY(2px); }
         .btn-stop { background: #e74c3c; display: none; }
         
-        /* Telas */
+        /* Botão simulador de rede */
+        .btn-rede { background: #95a5a6; border: 2px dashed #7f8c8d; color: #fff; padding: 10px; font-size: 13px; display: none; margin-bottom: 15px;}
+        .btn-rede.offline { background: #c0392b; border-color: #e74c3c; }
+
         #telaDashboard { display: none; }
-        .info-card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 5px solid #3498db; }
+        .info-card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; border-left: 5px solid #3498db; }
         pre { background: #2c3e50; color: #2ecc71; padding: 12px; border-radius: 8px; font-size: 11px; flex: 1; overflow-y: auto; margin: 0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); }
+        
+        .banco-local { font-size: 12px; font-weight: bold; color: #e67e22; margin-bottom: 10px; text-align: center; display: none; }
     </style>
 </head>
 <body>
@@ -35,43 +35,42 @@
         
         <div id="telaSetup" class="content">
             <h3 style="margin-top: 0; color: #2c3e50; text-align: center;">Configurar Viagem</h3>
-            
             <label>Selecione a Linha (Itinerário)</label>
             <select id="inputLinha">
                 <option value="RU01">RU01 - Unipampa (Direto)</option>
-                <option value="RU02">RU02 - Unipampa (Via Santa Casa)</option>
+                <option value="RU02">RU02 - Unipampa (Via Sta Casa)</option>
                 <option value="C01">C01 - Circular Centro</option>
             </select>
-
             <label>Prefixo do Veículo</label>
             <input type="text" id="inputVeiculo" value="V-204" placeholder="Ex: V-105">
-
             <button class="btn-primary" onclick="confirmarSetup()" style="margin-top: auto;">Confirmar e Prosseguir</button>
         </div>
 
-<div id="telaDashboard" class="content">
+        <div id="telaDashboard" class="content">
             <div class="info-card">
                 <div style="font-size: 12px; color: #7f8c8d;">STATUS OPERACIONAL</div>
-                <strong>Linha:</strong> <span id="displayLinha" style="color: #3498db;"></span><br>
-                <strong>Veículo:</strong> <span id="displayVeiculo"></span>
+                <strong>Linha:</strong> <span id="displayLinha" style="color: #3498db;"></span> | <strong>Veículo:</strong> <span id="displayVeiculo"></span>
             </div>
             
             <button id="btnIniciar" class="btn-start" onclick="iniciarRota()">▶ INICIAR RASTREAMENTO</button>
             <button id="btnParar" class="btn-stop" onclick="pararRota()">⏹ PAUSAR RASTREAMENTO</button>
             
-            <div id="areaImprevisto" style="display: none; background: #fff3cd; padding: 15px; border-radius: 10px; border-left: 5px solid #f1c40f; margin-bottom: 15px;">
+            <button id="btnRede" class="btn-rede" onclick="alternarRede()">📶 Sinal 4G Conectado (Clique para cortar)</button>
+            <div id="bancoOffline" class="banco-local">💾 Registros Salvos Offline: <span id="contadorFila">0</span></div>
+
+            <div id="areaImprevisto" style="display: none; background: #fff3cd; padding: 10px; border-radius: 10px; border-left: 5px solid #f1c40f; margin-bottom: 10px;">
                 <label style="color: #d35400;">Reportar Imprevisto Oficial:</label>
-                <select id="selectImprevisto" style="margin-bottom: 10px; border: 1px solid #f1c40f;">
+                <select id="selectImprevisto" style="margin-bottom: 10px; padding: 8px;">
                     <option value="Veículo Fora de Rota">Veículo Fora de Rota</option>
                     <option value="Problema Mecânico (Parado)">Problema Mecânico (Parado)</option>
-                    <option value="Acidente de Trânsito">Acidente de Trânsito</option>
                 </select>
-                <button onclick="enviarAlertaMotorista()" style="background: #f39c12; margin-bottom: 0; padding: 10px;">⚠️ Enviar Alerta Geral</button>
+                <button onclick="enviarAlertaMotorista()" style="background: #f39c12; margin-bottom: 0; padding: 10px; font-size: 13px;">⚠️ Enviar Alerta</button>
             </div>
             
-            <label style="margin-top: 10px;">TERMINAL DE LOG (RF02):</label>
+            <label style="margin-top: 5px;">TERMINAL DE LOG (RF02 - Store & Forward):</label>
             <pre id="logMotorista">Aguardando início da rota...</pre>
         </div>
+    </div>
 
     <script>
         let intervaloGps;
@@ -81,21 +80,17 @@
         let linhaConfigurada = "";
         let veiculoConfigurado = "";
 
-        // Função para transição de telas
+        // RF02: Lógica de Resiliência de Rede
+        let temInternet = true;
+        let bancoDeDadosLocal = []; // Simula o SQLite local do aparelho
+
         function confirmarSetup() {
             linhaConfigurada = document.getElementById('inputLinha').value;
             veiculoConfigurado = document.getElementById('inputVeiculo').value;
-            
-            if(!veiculoConfigurado) {
-                alert("Por favor, insira o prefixo do veículo.");
-                return;
-            }
+            if(!veiculoConfigurado) return alert("Insira o veículo.");
 
-            // Atualiza os textos da tela 2
             document.getElementById('displayLinha').innerText = linhaConfigurada;
             document.getElementById('displayVeiculo').innerText = veiculoConfigurado;
-
-            // Esconde a tela 1 e mostra a tela 2
             document.getElementById('telaSetup').style.display = 'none';
             document.getElementById('telaDashboard').style.display = 'flex';
         }
@@ -103,76 +98,106 @@
         function iniciarRota() {
             document.getElementById('btnIniciar').style.display = 'none';
             document.getElementById('btnParar').style.display = 'block';
-            log('Conectado ao satélite. Transmissão iniciada.');
+            document.getElementById('btnRede').style.display = 'block';
+            document.getElementById('areaImprevisto').style.display = 'block';
+            log('Conectado ao satélite. Iniciando captura de GPS...');
             
-            intervaloGps = setInterval(enviarCoordenada, 5000);
-            enviarCoordenada();
+            intervaloGps = setInterval(capturarEProcessarCoordenada, 5000);
+            capturarEProcessarCoordenada();
         }
 
         function pararRota() {
             document.getElementById('btnIniciar').style.display = 'block';
             document.getElementById('btnParar').style.display = 'none';
+            document.getElementById('btnRede').style.display = 'none';
+            document.getElementById('areaImprevisto').style.display = 'none';
             clearInterval(intervaloGps);
-            log('Transmissão encerrada. Última posição salva no servidor.');
+            log('Transmissão encerrada.');
         }
 
-        function enviarCoordenada() {
-            // Simulando o movimento do ônibus
+        function alternarRede() {
+            temInternet = !temInternet;
+            const btn = document.getElementById('btnRede');
+            const avisoOff = document.getElementById('bancoOffline');
+            
+            if(temInternet) {
+                btn.innerText = "📶 Sinal 4G Conectado (Clique para cortar)";
+                btn.classList.remove('offline');
+                avisoOff.style.display = 'none';
+                log('🌐 Internet restabelecida. Verificando dados offline...');
+                sincronizarComServidor(); // Tenta enviar logo que a internet volta
+            } else {
+                btn.innerText = "❌ Sem Sinal (Clique para reconectar)";
+                btn.classList.add('offline');
+                avisoOff.style.display = 'block';
+                log('⚠️ Perda de sinal. Modo Offline ativado.');
+            }
+        }
+
+        // Ação central do RF02: Captura independente de ter internet
+        function capturarEProcessarCoordenada() {
             latAtual += (Math.random() * 0.0005);
             lonAtual += (Math.random() * 0.0005);
-            const agora = new Date().toISOString();
+            
+            // O MOTORISTA carimba a hora exata da captura pelo relógio local do celular
+            const carimboHoraExata = new Date().toISOString();
+
+            const novaCoordenada = {
+                "latitude": latAtual,
+                "longitude": lonAtual,
+                "timestampCaptura": carimboHoraExata
+            };
+
+            // Guarda no SQLite local do celular
+            bancoDeDadosLocal.push(novaCoordenada);
+            document.getElementById('contadorFila').innerText = bancoDeDadosLocal.length;
+
+            if (temInternet) {
+                sincronizarComServidor();
+            } else {
+                log(`💾 Offline: Guardado Lat ${latAtual.toFixed(4)} com timestamp local.`);
+            }
+        }
+
+        function sincronizarComServidor() {
+            if (bancoDeDadosLocal.length === 0) return;
 
             const payload = {
-                "idLinha": linhaConfigurada, // Usa o valor escolhido no select
-                "idVeiculo": veiculoConfigurado, // Usa o valor digitado
-                "coordenadas": [{ "latitude": latAtual, "longitude": lonAtual, "timestampCaptura": agora }]
+                "idLinha": linhaConfigurada,
+                "idVeiculo": veiculoConfigurado,
+                "coordenadas": bancoDeDadosLocal // Envia todos acumulados (Lote/Batch)
             };
 
             fetch('/api/v1/telemetria/batch', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
+            }).then(response => {
+                if(response.ok) {
+                    log(`📡 Sincronizado: Lote de ${bancoDeDadosLocal.length} posição(ões) enviado.`);
+                    bancoDeDadosLocal = []; // Limpa o banco local após sucesso
+                    document.getElementById('contadorFila').innerText = "0";
+                }
+            }).catch(err => {
+                log(`❌ Erro no envio. Os dados continuam salvos offline.`);
+            });
+        }
+
+        function enviarAlertaMotorista() {
+            const problema = document.getElementById('selectImprevisto').value;
+            fetch(`/api/v1/linhas/${linhaConfigurada}/avisos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tipoProblema: `🚨 INFORMATIVO OFICIAL: ${problema} (Prefixo ${veiculoConfigurado})`, origem: "motorista" })
             }).then(() => {
-                log(`📍 Enviado: Lat ${latAtual.toFixed(5)}, Lon ${lonAtual.toFixed(5)}`);
-            }).catch(err => log(`❌ Erro de rede: Dados salvos localmente (SQLite simulado).`));
+                log(`ALERTA OFICIAL ENVIADO: ${problema}`);
+                alert("Aviso enviado para a comunidade.");
+            });
         }
 
         function log(texto) {
             const el = document.getElementById('logMotorista');
             el.innerText = texto + "\n" + el.innerText;
-        }
-        
-        function iniciarRota() {
-            document.getElementById('btnIniciar').style.display = 'none';
-            document.getElementById('btnParar').style.display = 'block';
-            document.getElementById('areaImprevisto').style.display = 'block'; // Mostra botão de emergência
-            log('Conectado ao satélite. Transmissão iniciada.');
-            intervaloGps = setInterval(enviarCoordenada, 5000);
-            enviarCoordenada();
-        }
-
-        function pararRota() {
-            document.getElementById('btnIniciar').style.display = 'block';
-            document.getElementById('btnParar').style.display = 'none';
-            document.getElementById('areaImprevisto').style.display = 'none'; // Esconde botão
-            clearInterval(intervaloGps);
-            log('Transmissão encerrada.');
-        }
-
-        function enviarAlertaMotorista() {
-            const problema = document.getElementById('selectImprevisto').value;
-            
-            fetch(`/api/v1/linhas/${linhaConfigurada}/avisos`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    tipoProblema: `🚨 INFORMATIVO OFICIAL: ${problema} (Prefixo ${veiculoConfigurado})`,
-                    origem: "motorista" 
-                })
-            }).then(() => {
-                log(`ALERTA ENVIADO: ${problema}`);
-                alert("O aviso foi enviado para todos os passageiros da linha.");
-            });
         }
     </script>
 </body>
