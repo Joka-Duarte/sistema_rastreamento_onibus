@@ -63,6 +63,7 @@
                 <select id="selectImprevisto" style="margin-bottom: 10px; padding: 8px;">
                     <option value="Veículo Fora de Rota">Veículo Fora de Rota</option>
                     <option value="Problema Mecânico (Parado)">Problema Mecânico (Parado)</option>
+                    <option value="Acidente de Trânsito">Acidente de Trânsito</option>
                 </select>
                 <button onclick="enviarAlertaMotorista()" style="background: #f39c12; margin-bottom: 0; padding: 10px; font-size: 13px;">⚠️ Enviar Alerta</button>
             </div>
@@ -134,12 +135,10 @@
             }
         }
 
-        // Ação central do RF02: Captura independente de ter internet
         function capturarEProcessarCoordenada() {
             latAtual += (Math.random() * 0.0005);
             lonAtual += (Math.random() * 0.0005);
             
-            // O MOTORISTA carimba a hora exata da captura pelo relógio local do celular
             const carimboHoraExata = new Date().toISOString();
 
             const novaCoordenada = {
@@ -148,7 +147,6 @@
                 "timestampCaptura": carimboHoraExata
             };
 
-            // Guarda no SQLite local do celular
             bancoDeDadosLocal.push(novaCoordenada);
             document.getElementById('contadorFila').innerText = bancoDeDadosLocal.length;
 
@@ -165,7 +163,7 @@
             const payload = {
                 "idLinha": linhaConfigurada,
                 "idVeiculo": veiculoConfigurado,
-                "coordenadas": bancoDeDadosLocal // Envia todos acumulados (Lote/Batch)
+                "coordenadas": bancoDeDadosLocal
             };
 
             fetch('/api/v1/telemetria/batch', {
@@ -175,7 +173,7 @@
             }).then(response => {
                 if(response.ok) {
                     log(`📡 Sincronizado: Lote de ${bancoDeDadosLocal.length} posição(ões) enviado.`);
-                    bancoDeDadosLocal = []; // Limpa o banco local após sucesso
+                    bancoDeDadosLocal = [];
                     document.getElementById('contadorFila').innerText = "0";
                 }
             }).catch(err => {
